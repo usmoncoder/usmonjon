@@ -3,8 +3,6 @@ import { projects } from "@/content/projects";
 import { site } from "@/content/site";
 import { routing } from "@/i18n/routing";
 
-export const dynamic = "force-static";
-
 const staticPaths = [
   "",
   "/about",

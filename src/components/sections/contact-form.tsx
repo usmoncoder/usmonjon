@@ -2,32 +2,44 @@
 
 import { ArrowRight, CheckCircle2, Lock, TriangleAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRef, useState, useTransition } from "react";
-import { sendMessageClient, type ContactState } from "@/lib/send-message-client";
+import { useActionState, useEffect, useRef } from "react";
+import { useFormStatus } from "react-dom";
+import { sendMessage, type ContactState } from "@/app/actions/send-message";
 import { Button } from "@/components/ui/button";
+
+const initialState: ContactState = { status: "idle", message: null };
 
 const fieldClass =
   "w-full rounded-[var(--radius-btn)] border border-border bg-background px-4 py-3.5 text-sm outline-none transition-colors duration-300 placeholder:text-muted focus:border-accent";
 
-export function ContactForm() {
+function SubmitButton() {
   const t = useTranslations("contact");
-  const formRef = useRef<HTMLFormElement>(null);
-  const [state, setState] = useState<ContactState>({ status: "idle", message: null });
-  const [isPending, startTransition] = useTransition();
-
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-
-    startTransition(async () => {
-      const result = await sendMessageClient(formData);
-      setState(result);
-      if (result.status === "success") formRef.current?.reset();
-    });
-  }
+  const { pending } = useFormStatus();
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <Button
+      type="submit"
+      size="lg"
+      disabled={pending}
+      className="mt-2 w-full text-xs font-semibold uppercase tracking-[0.14em]"
+    >
+      {pending ? t("sending") : t("submit")}
+      <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
+    </Button>
+  );
+}
+
+export function ContactForm() {
+  const t = useTranslations("contact");
+  const [state, formAction] = useActionState(sendMessage, initialState);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    if (state.status === "success") formRef.current?.reset();
+  }, [state.status]);
+
+  return (
+    <form ref={formRef} action={formAction} className="flex flex-col gap-4">
       <div className="grid gap-4 sm:grid-cols-2">
         <input
           name="name"
@@ -77,15 +89,7 @@ export function ContactForm() {
         className="absolute left-[-9999px] h-0 w-0 opacity-0"
       />
 
-      <Button
-        type="submit"
-        size="lg"
-        disabled={isPending}
-        className="mt-2 w-full text-xs font-semibold uppercase tracking-[0.14em]"
-      >
-        {isPending ? t("sending") : t("submit")}
-        <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
-      </Button>
+      <SubmitButton />
 
       <p className="flex items-center justify-center gap-1.5 text-xs text-muted">
         <Lock className="h-3 w-3" />

@@ -45,19 +45,9 @@ export function WorldMap({
       <div className="flex flex-1 p-4 sm:p-6">
         <div className="relative min-h-[15rem] w-full flex-1">
           <span
-            className="absolute inset-0 bg-foreground/40"
+            className="world-dots absolute inset-0 bg-foreground/40"
             role="img"
             aria-label={label}
-            style={{
-              maskImage: `url('${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/images/pages/world-dots.svg')`,
-              WebkitMaskImage: `url('${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/images/pages/world-dots.svg')`,
-              maskSize: "contain",
-              WebkitMaskSize: "contain",
-              maskPosition: "center",
-              WebkitMaskPosition: "center",
-              maskRepeat: "no-repeat",
-              WebkitMaskRepeat: "no-repeat",
-            }}
           />
 
           <svg
